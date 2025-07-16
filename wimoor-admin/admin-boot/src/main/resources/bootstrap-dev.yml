@@ -1,0 +1,123 @@
+server:
+  port: 8085
+  servlet:
+     context-path: /admin
+spring:
+  application:
+    name: wimoor-admin
+#  cloud:
+#    nacos:
+#      # 注册中心
+#      discovery:
+#        server-addr: 127.0.0.1:8848
+#        ip: 127.0.0.1
+#        namespace: public
+#      # 配置中心
+#      config:
+#        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+#        file-extension: Properties
+#        namespace: public
+#             # 公共配置
+#        shared-configs[0]:
+#          data-id: wimoor-common
+#          refresh: true
+#        shared-configs[1]:
+#          data-id: wimoor-commom-ext
+#          refresh: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    jdbc-url: jdbc:mysql://${mysql.host}:${mysql.port}/db_admin?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&serverTimezone=Asia/Shanghai
+    username: ${mysql.username}
+    password: ${mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  quartz:
+    jdbc:
+      initialize-schema: never
+    job-store-type: jdbc
+    properties:
+      org:
+        quartz:
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 8000
+            threadPriority: 5
+            threadsInheritContextClassLoaderOfInitializingThread: true
+          scheduler:
+            instanceName: clusteredScheduler
+            instanceId: AUTO
+          jobStore:
+            dataSource: quartzDataSource
+            misfireThreshold: 360000
+    type: com.alibaba.druid.pool.DruidDataSource
+    jdbc-url: jdbc:mysql://${mysql.host}:${mysql.port}/db_admin?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&serverTimezone=Asia/Shanghai
+    username: ${mysql.username}
+    password: ${mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+    view:
+     suffix: .jsp
+     prefix: /WEB-INF/
+    throw-exception-if-no-handler-found: true
+    static-path-pattern: /**
+  cache:
+    cache-names: system
+  redis:
+    host: localhost
+    port: 6379
+    password: db_admin
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  username: db_admin
+  password: db_admin
+sys:
+  admin:
+    id: 26138972975759242
+
+
+
+#  spring.mail.host=smtp.feishu.cn
+#  spring.mail.port=465
+#  spring.mail.username=name@myemail.com
+#  spring.mail.password=FJDKSJ2165446
+#  spring.mail.default-encoding=UTF-8
+#  spring.mail.properties.mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+#  spring.mail.properties.mail.debug=true
+#
+aliyun:
+
+  sms:
+    code:
+      changephone: SMS_456789123
+      invalid: SMS_345678912
+      losepassword: SMS_234567891
+      register: SMS_123456789
+    sign: wimoor
+    access_key_id: ABCdd1efa1eFFD2s
+    access_key_secret: a1b2c3d4e5f6g8h9j1
+feishu:
+  app-id: cli_a12345678912345
+  app-secret: 123456789123456789132456789
+
+
+
+
+#  feign.client.config.default.connectTimeout= 10000
+#  feign.client.config.default.readTimeout= 600000
+#
+#  config.websit= https://localhost:8084
+#  config.ui-server= http://localhost:8084
+#  config.authority-server= http://localhost:8087/auth
+#  config.cas-server= https://sso.wimoor.com
+#  config.cas-filter-url-pattern= /shiro-cas
+
+wechat:
+  small-app-id: wx123456789
+  small-app-secret: 123456789123456789123456789
+  open-app-id: wx123456789a
+  open-app-secret: 123456789132456789123456789
+  mch-id: 123456789
+  key: Wimoor123456789123456789123456789
+  templateurl: https://api.weixin.qq.com/cgi-bin/message/template/send

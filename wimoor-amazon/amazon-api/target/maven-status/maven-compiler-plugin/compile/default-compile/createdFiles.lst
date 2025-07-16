@@ -1,0 +1,11 @@
+com\wimoor\amazon\api\AmazonClientOneFeign.class
+com\wimoor\amazon\inbound\pojo\vo\ShipInboundItemVo.class
+com\wimoor\amazon\inbound\pojo\vo\ShipInboundShipmenSummarytVo.class
+com\wimoor\amazon\inbound\pojo\vo\WarehouseShelfInventoryVo.class
+com\wimoor\amazon\inbound\pojo\dto\ShipInboundItemDTO.class
+com\wimoor\amazon\inbound\pojo\dto\ShipInboundTransDTO.class
+com\wimoor\amazon\inbound\pojo\vo\AssemblyVO.class
+com\wimoor\amazon\inbound\pojo\dto\ShipInboundShipmentDTO.class
+com\wimoor\amazon\product\pojo\dto\ProductListingItemDTO.class
+com\wimoor\amazon\inbound\pojo\vo\WarehouseShelfInventoryOptRecordVo.class
+com\wimoor\amazon\inbound\pojo\dto\ShipInboundPlanDTO.class
