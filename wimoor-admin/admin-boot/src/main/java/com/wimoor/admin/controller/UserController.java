@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wimoor.admin.pojo.entity.SysUserWechatMP;
 import com.wimoor.admin.service.*;
@@ -151,8 +152,10 @@ public class UserController {
 	}
 
 	@GetMapping("/limitData")
-	public Result<String> limitDataAction(String type) {
-		UserInfo userInfo = UserInfoContext.get();
+	public Result<String> limitDataAction(String type,HttpServletRequest request) {
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userInfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		if(userInfo.isLimit(type)) {
 			return Result.success("true");
 		}else {

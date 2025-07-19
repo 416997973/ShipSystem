@@ -94,8 +94,7 @@ public class MenuController {
 
         String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
         JSONObject jsonObject=JSONObject.parseObject(user);
-        UserInfo userInfo =(UserInfo)JSONObject.toJavaObject(jsonObject, UserInfo.class);
-    	//UserInfo userInfo = UserInfoContext.get();
+        UserInfo userInfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
         List<RouteVO> routeList = menuService.listRoute(userInfo);
         log.debug("路由加载");
         return Result.success(routeList);
