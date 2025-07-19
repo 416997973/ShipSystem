@@ -70,8 +70,12 @@ spring:
 mysql:
   host: 127.0.0.1
   port: 3306
-  username: db_admin
-  password: db_admin
+  username: root
+  password: admin123
+mybatis-plus:
+  global-config:
+    db-config:
+      update-strategy: IGNORED
 sys:
   admin:
     id: 26138972975759242
