@@ -2,6 +2,7 @@ package com.wimoor.erp.warehouse.controller;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wimoor.common.mvc.BizException;
@@ -17,10 +18,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,26 +47,36 @@ public class WarehouseController {
 	final IWarehouseService warehouseService;
 	final ISerialNumService iSerialNumService;
 
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
+
 	@ApiOperation("仓库列表[包含子仓位]")
 	@GetMapping("/list")
-	public Result<List<Warehouse>> findWarehouseList(){
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<List<Warehouse>> findWarehouseList(HttpServletRequest request){
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		List<Warehouse> list=warehouseService.getWarehouseTreeList(userinfo);
 		return Result.success(list);
 	}
 	
 	@ApiOperation("仓库列表[包含子仓位]")
 	@PostMapping("/listpage")
-	public Result<IPage<Warehouse>> findWarehousePageList(@RequestBody WarehouseDTO dto){
-		UserInfo userinfo = UserInfoContext.get();
+	@GetMapping("/listpage")
+	public Result<IPage<Warehouse>> findWarehousePageList(@RequestBody WarehouseDTO dto, HttpServletRequest request){
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		IPage<Warehouse> list=warehouseService.findByCondition(dto.getPage(),dto.getSearch(),userinfo.getCompanyid(),dto.getFtype(),dto.getParentid());
 		return Result.success(list);
 	}
 	
 	@ApiOperation("仓库列表[self_test,self_usable,self_unusable]")
 	@GetMapping("/getlist")
-	public Result<List<Warehouse>> findWarehouseFtypeList(String ftype){
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<List<Warehouse>> findWarehouseFtypeList(String ftype,HttpServletRequest request){
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		List<Warehouse> list=warehouseService.findByType(ftype,userinfo.getCompanyid());
 		if("self_unusable".equals(ftype)) {
               for(Warehouse item:list) {
@@ -98,8 +112,10 @@ public class WarehouseController {
 	
 	@ApiOperation("海外仓库列表")
 	@GetMapping("/getOverseaList")
-	public Result<List<Warehouse>> getOverseaListList(String ftype,String groupid,String country){
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<List<Warehouse>> getOverseaListList(String ftype,String groupid,String country,HttpServletRequest request){
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
  
 		List<Warehouse> list=warehouseService.getOverseaWarehouse(userinfo.getCompanyid(),ftype,groupid,country);
 				 
@@ -125,8 +141,10 @@ public class WarehouseController {
 	
 	@ApiOperation("仓库列表[self_test,self_usable,self_unusable]")
 	@GetMapping("/getNamelist")
-	public Result<List<Warehouse>> findNameWarehouseFtypeList(String ftype){
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<List<Warehouse>> findNameWarehouseFtypeList(String ftype,HttpServletRequest request){
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		QueryWrapper<Warehouse> queryWrapper=new QueryWrapper<Warehouse>();
 		queryWrapper.eq("ftype", ftype);
 		queryWrapper.eq("disabled", false);
@@ -137,8 +155,10 @@ public class WarehouseController {
 	
 	@ApiOperation("仓库列表[]")
 	@GetMapping("/getNamelistByAddressid/{addressid}")
-	public Result<List<Warehouse>> getNamelistByAddressid(@PathVariable String  addressid){
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<List<Warehouse>> getNamelistByAddressid(@PathVariable String  addressid,HttpServletRequest request){
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		QueryWrapper<Warehouse> queryWrapper=new QueryWrapper<Warehouse>();
 		List<String> ftypes=new LinkedList<String>();
 		ftypes.add("self_test");
@@ -154,8 +174,10 @@ public class WarehouseController {
 	
 	@ApiOperation("获取仓库默认的usable仓位")
 	@GetMapping("/getSelfWarehouseById")
-	public Result<String> getSelfWarehouseByIdAction(String id){
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<String> getSelfWarehouseByIdAction(String id,HttpServletRequest request){
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		QueryWrapper<Warehouse> queryWrapper=new QueryWrapper<Warehouse>();
 		queryWrapper.eq("ftype", "self_usable");
 		queryWrapper.eq("disabled", false);
@@ -197,8 +219,10 @@ public class WarehouseController {
 	@SystemControllerLog(  "更新仓库")
 	@PostMapping(value = "updateData/{id}")
 	@CacheEvict(value = { "warehosueCache" }, allEntries = true)
-	public Result<Warehouse> updateDataAction(@ApiParam("查询当前仓库") @PathVariable("id") String id, @RequestBody Warehouse model) {
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<Warehouse> updateDataAction(@ApiParam("查询当前仓库") @PathVariable("id") String id, @RequestBody Warehouse model,HttpServletRequest request) {
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		model.setOperator(userinfo.getId());
 		model.setOpttime(new Date());
 		if (StrUtil.isEmpty(model.getName())) {
@@ -217,8 +241,10 @@ public class WarehouseController {
 	
 	@SystemControllerLog(  "更新仓库")
 	@PostMapping(value = "updateDefault/{id}")
-	public Result<Warehouse> updateDefaultAction(@ApiParam("查询当前仓库") @PathVariable("id") String id) {
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<Warehouse> updateDefaultAction(@ApiParam("查询当前仓库") @PathVariable("id") String id,HttpServletRequest request) {
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		Warehouse model = warehouseService.getById(id);
 		model.setIsdefault(Boolean.TRUE);
 		model.setOperator(userinfo.getId());
@@ -230,8 +256,10 @@ public class WarehouseController {
 	@SystemControllerLog(  "更新仓库次序")
 	@PostMapping(value = "updateIndex")
 	@CacheEvict(value = { "warehosueCache" }, allEntries = true)
-	public Result<?> updateDataIndexAction(@RequestBody List<Warehouse> list) {
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<?> updateDataIndexAction(@RequestBody List<Warehouse> list,HttpServletRequest request) {
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		if(list!=null&&list.size()>0) {
 			for(Warehouse item:list) {
 				Warehouse oldone=warehouseService.getById(item.getId());
@@ -249,8 +277,10 @@ public class WarehouseController {
 	@SystemControllerLog( "新增仓库")
 	@PostMapping(value = "saveData")
 	@CacheEvict(value = { "warehosueCache" }, allEntries = true)
-	public Result<Warehouse> saveDataAction(@RequestBody Warehouse model) throws Exception {
-		UserInfo userinfo = UserInfoContext.get();
+	public Result<Warehouse> saveDataAction(@RequestBody Warehouse model,HttpServletRequest request) throws Exception {
+		String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 		String shopid=userinfo.getCompanyid();
 		//新增仓库下的仓位list
 		if (StrUtil.isEmpty(model.getName())) {

@@ -2,6 +2,7 @@ package com.wimoor.erp.warehouse.controller;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wimoor.common.mvc.BizException;
@@ -16,10 +17,14 @@ import com.wimoor.erp.warehouse.service.IWarehouseService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -37,11 +42,15 @@ import java.util.List;
 public class ErpWarehouseAddressController {
 	final IErpWarehouseAddressService iErpWarehouseAddressService;
 	final IWarehouseService warehouseService;
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 
 @ApiOperation(value = "查询地址")
 @PostMapping("list")
-public Result<Page<ErpWarehouseAddress>> list(@RequestBody ErpWarehouseAddressDTO dto) {
-	 UserInfo userinfo = UserInfoContext.get();
+public Result<Page<ErpWarehouseAddress>> list(@RequestBody ErpWarehouseAddressDTO dto, HttpServletRequest request) {
+			String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 	 LambdaQueryWrapper<ErpWarehouseAddress> queryName=new LambdaQueryWrapper<ErpWarehouseAddress>();
 	 queryName.eq(ErpWarehouseAddress::getShopid, userinfo.getCompanyid());
 	 if(StrUtil.isNotBlank(dto.getName())) {
@@ -73,8 +82,10 @@ private List<Warehouse> boundWarehouse(String shopid,String addressid){
 
 @ApiOperation(value = "新增地址")
 @PostMapping
-public Result<String> add(@RequestBody ErpWarehouseAddress address) {
-	 UserInfo userinfo = UserInfoContext.get();
+public Result<String> add(@RequestBody ErpWarehouseAddress address,HttpServletRequest request) {
+			String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 	 LambdaQueryWrapper<ErpWarehouseAddress> queryName=new LambdaQueryWrapper<ErpWarehouseAddress>();
 	 queryName.eq(ErpWarehouseAddress::getShopid, userinfo.getCompanyid());
 	 queryName.eq(ErpWarehouseAddress::getName, address.getName());
@@ -101,8 +112,10 @@ public Result<String> add(@RequestBody ErpWarehouseAddress address) {
 
 @ApiOperation(value = "修改地址")
 @PutMapping(value = "/{id}")
-public Result<String> update(@PathVariable String id, @RequestBody ErpWarehouseAddress address) {
-	UserInfo userinfo = UserInfoContext.get();
+public Result<String> update(@PathVariable String id, @RequestBody ErpWarehouseAddress address,HttpServletRequest request) {
+			String user = stringRedisTemplate.opsForValue().get(request.getHeader("jsessionid"));
+		JSONObject jsonObject=JSONObject.parseObject(user);
+		UserInfo userinfo = JSONObject.toJavaObject(jsonObject, UserInfo.class);
 	 LambdaQueryWrapper<ErpWarehouseAddress> queryName=new LambdaQueryWrapper<ErpWarehouseAddress>();
 	 queryName.eq(ErpWarehouseAddress::getShopid, userinfo.getCompanyid());
 	 queryName.eq(ErpWarehouseAddress::getName, address.getName());
